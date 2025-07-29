@@ -5,6 +5,7 @@ declare global {
             getBatch: (start: number, size: number) => Promise<ClipboardContent[]>;
             getTotal: () => Promise<number>;
             onClipboardUpdate: (callback: (text: ClipboardContent) => void) => void;
+            deleteClipboardEntry: (timestamp: number) => void;
         };
     }
 }

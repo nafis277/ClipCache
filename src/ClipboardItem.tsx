@@ -45,11 +45,13 @@ export function ClipCard({
     index,
     toggleView,
     handleCopy,
+    handleDelete,
 }: {
     entry: ClipEntry;
     index: number;
     toggleView: (i: number) => void;
     handleCopy: (text: string) => void;
+    handleDelete: (index: number) => void;
 }) : JSX.Element {
     const { highlighted, language, isCode } = processHighlight(entry.text);
     const canShowFormatted = containsMeaningfulFormatting(entry.html, entry.text);
@@ -61,7 +63,7 @@ export function ClipCard({
                 <span className="timestamp">{timestamp}</span>
                 {canShowFormatted && (
                     <button className="toggle-btn" onClick={() => toggleView(index)}>
-                        {entry.viewMode === 'raw' ? 'Show formatted' : 'Show raw'}
+                        {entry.viewMode === 'raw' ? 'Show HTML view' : 'Show raw'}
                     </button>
                 )}
             </div>
@@ -111,6 +113,11 @@ export function ClipCard({
                         </div>
                     </div>
                 )}
+            </div>
+            <div className="clip-footer">
+                <button className="delete-btn" onClick={() => handleDelete(index)}>
+                    Delete
+                </button>
             </div>
         </div>
     );

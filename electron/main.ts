@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { startClipBoardWatcher } from './clipboardManager';
 import { createMainWindow } from './window';
-import { HISTORY_DIR, getTotalEntries, loadClipboardBatch } from './clipboardHistory';
+import { HISTORY_DIR, getTotalEntries, loadClipboardBatch, deleteClipboardEntry} from './clipboardHistory';
 import fs from 'fs';
 
 let mainWindow: BrowserWindow | undefined = undefined;
@@ -27,6 +27,9 @@ ipcMain.handle('get-batch', (_e, start, size) => loadClipboardBatch(start, size)
 
 // Handler for getting the total number of entries stored
 ipcMain.handle('get-total', () => getTotalEntries());
+
+// Handler for deleting a clipboard item
+ipcMain.handle('delete-clipboard-entry', (_event, timestamp: number) => deleteClipboardEntry(timestamp));
 
 app.whenReady().then(() => {
     initateApp();

@@ -14,6 +14,19 @@ export function listHistoryFilenames(): string[] {
     return fs.readdirSync(HISTORY_DIR).filter(f => f.endsWith('.json')).sort().reverse();
 }
 
+export function getMostRecent(): ClipboardContent {
+    const files = listHistoryFilenames();
+    if (!files.length) {
+        return {
+            text: '',
+            html: '',
+            timestamp: 0,
+        };
+    }
+    const raw = fs.readFileSync(path.join(HISTORY_DIR, files[0]), 'utf-8');
+    return JSON.parse(raw);
+}
+
 export function loadClipboardBatch(startIndex: number, batchSize: number): ClipboardContent[] {
     const filenames = listHistoryFilenames().slice(startIndex, startIndex + batchSize);
     return filenames.map(fname => {
@@ -24,4 +37,11 @@ export function loadClipboardBatch(startIndex: number, batchSize: number): Clipb
 
 export function getTotalEntries(): number {
     return listHistoryFilenames().length;
+}
+
+export function deleteClipboardEntry(timestamp: number): void {
+    const filePath = path.join(HISTORY_DIR, `${timestamp}.json`);
+    if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+    }
 }

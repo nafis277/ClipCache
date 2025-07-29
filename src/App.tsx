@@ -52,6 +52,13 @@ export default function App() {
         navigator.clipboard.writeText(text);
     };
 
+    const handleDelete = (index: number) => {
+        const deleted = clipboardHistory[index];
+        const updated = clipboardHistory.filter((_, i) => i !== index);
+        setClipboardHistory(updated);
+        window.clipboardAPI.deleteClipboardEntry(deleted.timestamp); 
+    };
+
     const toggleView = (index: number) => {
         setClipboardHistory(prev =>
             prev.map((item, i) =>
@@ -73,6 +80,7 @@ export default function App() {
                         entry={entry}
                         toggleView={toggleView}
                         handleCopy={handleCopy}
+                        handleDelete={handleDelete}
                     />
                 ))
             )}

@@ -1,5 +1,5 @@
 import { BrowserWindow, clipboard } from "electron";
-import { saveClipboardContent } from "./clipboardHistory";
+import { saveClipboardContent, getMostRecent } from "./clipboardHistory";
 
 export type ClipboardContent = {
     text: string,
@@ -7,7 +7,7 @@ export type ClipboardContent = {
     timestamp: number,
 };
 
-let lastHTML = '';
+let lastHTML = getMostRecent().html;
 export function startClipBoardWatcher(window: BrowserWindow) : NodeJS.Timeout {
     const pollInterval = setInterval(() => {
         const currentHTML = clipboard.readHTML();

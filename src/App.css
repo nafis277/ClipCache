@@ -160,3 +160,34 @@
     background-color: #aaa;
     cursor: not-allowed;
 }
+
+.clip-item {
+    position: relative;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.clip-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.delete-btn {
+    color: white;
+    background-color: crimson;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s ease;
+}
+
+.delete-btn:hover {
+    background-color: darkred;
+}

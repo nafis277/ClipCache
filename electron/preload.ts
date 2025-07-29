@@ -12,4 +12,5 @@ contextBridge.exposeInMainWorld('clipboardAPI', {
 
     getBatch: (start: number, size: number) => ipcRenderer.invoke('get-batch', start, size),
     getTotal: () => ipcRenderer.invoke('get-total'),
+    deleteClipboardEntry: (timestamp: number) => ipcRenderer.invoke('delete-clipboard-entry', timestamp),
 });
