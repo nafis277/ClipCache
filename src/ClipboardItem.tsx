@@ -1,5 +1,6 @@
 import type { JSX } from "react";
 import hljs from 'highlight.js';
+
 export type ClipboardContent = {
     text: string;
     html: string;
@@ -10,8 +11,9 @@ export type ClipEntry = ClipboardContent & {
 };
 
 function processHighlight(text: string) {
+    
     const result = hljs.highlightAuto(text);
-    const isLikelyCode = result.relevance > 5;
+    const isLikelyCode = result.relevance > 10;
     return {
         highlighted: result.value,
         language: result.language ?? 'plaintext',
@@ -75,12 +77,14 @@ export function ClipCard({
                                         Copy
                                     </button>
                                 </div>
-                                <pre>
-                                    <code
-                                        className="hljs"
-                                        dangerouslySetInnerHTML={{ __html: highlighted }}
-                                    />
-                                </pre>
+                                <div className="scrollable-content">
+                                    <pre>
+                                        <code
+                                            className="hljs"
+                                            dangerouslySetInnerHTML={{ __html: highlighted }}
+                                        />
+                                    </pre>
+                                </div>
                             </div>
                         ) : (
                             <div className="plain-text">
@@ -89,7 +93,9 @@ export function ClipCard({
                                         Copy
                                     </button>
                                 </div>
-                                {entry.text}
+                                <div className="scrollable-content">
+                                    {entry.text}
+                                </div>
                             </div>
                         )}
                     </div>
@@ -100,7 +106,9 @@ export function ClipCard({
                                 Copy
                             </button>
                         </div>
-                        <div dangerouslySetInnerHTML={{ __html: entry.html }} />
+                        <div className="scrollable-content">
+                            <div dangerouslySetInnerHTML={{ __html: entry.html }} />
+                        </div>
                     </div>
                 )}
             </div>
