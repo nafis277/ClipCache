@@ -131,10 +131,32 @@
 }
 
 .scrollable-content {
-  max-height: 300px;
-  overflow: auto;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 0.5rem;
-  background-color: #f9f9f9;
+    max-height: 300px;
+    overflow: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.5rem;
+    background-color: #f9f9f9;
+}
+
+.page-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.page-controls button {
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    border: none;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+}
+
+.page-controls button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
 }

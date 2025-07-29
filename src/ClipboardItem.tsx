@@ -4,10 +4,10 @@ import hljs from 'highlight.js';
 export type ClipboardContent = {
     text: string;
     html: string;
+    timestamp: number,
 };
 export type ClipEntry = ClipboardContent & {
     viewMode: 'raw' | 'formatted',
-    copiedAt: string,
 };
 
 function processHighlight(text: string) {
@@ -28,8 +28,8 @@ function containsMeaningfulFormatting(html: string, text: string) : boolean {
     return normalizedHtml !== normalizedText;
 }
 
-function formatTime(isoString: string) : string {
-    const date = new Date(isoString);
+function formatTime(timestamp: number) : string {
+    const date = new Date(timestamp);
     return date.toLocaleString(undefined, {
         month: 'short',
         day: 'numeric',
@@ -53,7 +53,7 @@ export function ClipCard({
 }) : JSX.Element {
     const { highlighted, language, isCode } = processHighlight(entry.text);
     const canShowFormatted = containsMeaningfulFormatting(entry.html, entry.text);
-    const timestamp = formatTime(entry.copiedAt);
+    const timestamp = formatTime(entry.timestamp);
 
     return (
         <div className="clip-item">

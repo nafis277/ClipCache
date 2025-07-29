@@ -8,5 +8,8 @@ contextBridge.exposeInMainWorld('clipboardAPI', {
         ipcRenderer.on('clipboard-update', (_event, clipboardContent) => {
             callback(clipboardContent);
         });
-    }
+    },
+
+    getBatch: (start: number, size: number) => ipcRenderer.invoke('get-batch', start, size),
+    getTotal: () => ipcRenderer.invoke('get-total'),
 });

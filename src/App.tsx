@@ -1,19 +1,50 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import 'highlight.js/styles/github.css';
 import { type ClipEntry, type ClipboardContent, ClipCard } from './ClipboardItem';
 
 export default function App() {
     const [clipboardHistory, setClipboardHistory] = useState<ClipEntry[]>([]);
+    const [page, setPage] = useState(0);
+    const [totalEntries, setTotalEntries] = useState(0);
+    const batchSize = 5;
+
+    const pageRef = useRef(page);
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
+
+    
+    const loadPage = async (pageIndex: number) => {
+        const startIndex = pageIndex * batchSize;
+        const batch = await window.clipboardAPI.getBatch(startIndex, batchSize);
+        const converted = batch.map(item => {
+            return {
+                ...item, 
+                viewMode: 'raw'
+            };
+        });
+        setClipboardHistory(converted);
+        setPage(pageIndex);
+    };
 
     useEffect(() => {
+        (async () => {
+            const total = await window.clipboardAPI.getTotal();
+            setTotalEntries(total);
+            console.log("GOT TOTAL = ", total);
+            loadPage(0);
+        })();
         window.clipboardAPI.onClipboardUpdate((newContent: ClipboardContent) => {
+            if (pageRef.current !== 0) {
+                return;
+            }
             const entry: ClipEntry = {
                 ...newContent,
                 viewMode: 'raw',
-                copiedAt: new Date().toISOString(),
             };
-            setClipboardHistory(prev => [entry, ...prev]);
+            setTotalEntries(prev => prev + 1);
+            setClipboardHistory(prev => [entry, ...prev].slice(0, batchSize));
         });
     }, []);
 
@@ -45,6 +76,11 @@ export default function App() {
                     />
                 ))
             )}
+            <div className="page-controls">
+                <button disabled={page === 0} onClick={() => loadPage(page - 1)}>Prev</button>
+                <span> Page {page + 1} </span>
+                <button disabled={(page + 1) * batchSize >= totalEntries} onClick={() => loadPage(page + 1)}>Next</button>
+            </div>
         </div>
     );
 }

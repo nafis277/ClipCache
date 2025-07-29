@@ -1,8 +1,10 @@
 import { BrowserWindow, clipboard } from "electron";
+import { saveClipboardContent } from "./clipboardHistory";
 
 export type ClipboardContent = {
     text: string,
     html: string,
+    timestamp: number,
 };
 
 let lastHTML = '';
@@ -15,8 +17,9 @@ export function startClipBoardWatcher(window: BrowserWindow) : NodeJS.Timeout {
             const content: ClipboardContent = {
                 text: currentText,
                 html: currentHTML,
+                timestamp: Date.now(),
             };
-
+            saveClipboardContent(content);
             window.webContents.send('clipboard-update', content);
         }
     }, 1000); // every 1 second
