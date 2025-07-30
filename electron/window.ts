@@ -1,7 +1,7 @@
 import { BrowserWindow } from 'electron';
 import { join } from 'path';
+import { IS_DEV } from './main';
 
-const IS_DEV = process.env.NODE_ENV === 'development';
 
 /**
  * Creates and returns the main application window.

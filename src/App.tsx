@@ -12,7 +12,7 @@ export default function App() {
 
     const [inDefault, setInDefault] = useState(true);
 
-    const batchSize = 5;
+    const batchSize = 10;
 
     const pageRef = useRef(page);
     const inDefaultRef = useRef(inDefault);

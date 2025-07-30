@@ -33,6 +33,15 @@ function processHighlight(text: string) {
     };
 }
 
+/**
+ * Determines if HTML content contains meaningful formatting beyond plain text.
+ * Compares the HTML content with its text-only version to detect if there are
+ * structural differences that justify showing a formatted view.
+ * 
+ * @param html The HTML content to analyze
+ * @param text The plain text version for comparison
+ * @returns True if HTML contains meaningful formatting, false otherwise
+ */
 function containsMeaningfulFormatting(html: string, text: string) : boolean {
     const normalizedHtml = html.replace(/<[^>]+>/g, '').trim();
     const normalizedText = text.trim();
@@ -40,6 +49,13 @@ function containsMeaningfulFormatting(html: string, text: string) : boolean {
     return normalizedHtml !== normalizedText;
 }
 
+/**
+ * Formats a timestamp into a human-readable date and time string.
+ * Uses the user's locale settings for appropriate formatting.
+ * 
+ * @param timestamp Unix timestamp in milliseconds
+ * @returns Formatted date string 
+ */
 function formatTime(timestamp: number) : string {
     const date = new Date(timestamp);
     return date.toLocaleString(undefined, {
@@ -51,7 +67,21 @@ function formatTime(timestamp: number) : string {
 }
 
 
-
+/**
+ * ClipCard component renders a single clipboard entry with syntax highlighting,
+ * view mode toggling, and action buttons for copying and deleting.
+ * 
+ * The component automatically detects if content is code and applies appropriate
+ * syntax highlighting. It also supports toggling between raw text view and
+ * formatted HTML view when meaningful HTML formatting is present.
+ * 
+ * @param entry The clipboard entry data containing text, html, timestamp, and viewMode
+ * @param index The index of this entry in the list (used for callbacks)
+ * @param toggleView Callback to toggle between raw and formatted view modes
+ * @param handleCopy Callback to copy text to clipboard
+ * @param handleDelete Callback to delete this clipboard entry
+ * @returns {JSX.Element} Rendered clipboard card component
+ */
 export function ClipCard({
     entry,
     index,
