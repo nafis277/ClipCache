@@ -18,7 +18,7 @@ export const IS_DEV = process.env.NODE_ENV === 'development';
  * - Starts polling the system clipboard.
  * - Initializes the system tray for background access.
  */
-function initiateApp(): void {
+async function initiateApp(): Promise<void> {
     // Ensure history directory exists
     if (!fs.existsSync(HISTORY_DIR)) {
         fs.mkdirSync(HISTORY_DIR);
@@ -29,7 +29,7 @@ function initiateApp(): void {
     
     // Start background clipboard watcher only if not already running
     if (!pollInterval) {
-        pollInterval = startBackgroundClipBoardWatcher();
+        pollInterval = await startBackgroundClipBoardWatcher();
     }
 
     // Clear reference when main window is closed (but keep polling running)

@@ -25,7 +25,7 @@ function processHighlight(text: string) {
    ];
     
     const result = hljs.highlightAuto(text, languages);
-    const isLikelyCode = result.relevance > 15;
+    const isLikelyCode = result.relevance > 30;
     return {
         highlighted: result.value,
         language: result.language ?? 'plaintext',

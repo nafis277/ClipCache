@@ -15,7 +15,8 @@ export type ClipboardContent = {
 };
 
 // Stores the last seen HTML content to avoid duplicate entries.
-let lastClipboardHTML = getMostRecent().html;
+let lastClipboardHTML: string | undefined = undefined; 
+
 /**
  * Starts watching the system clipboard for changes in background.
  * 
@@ -23,9 +24,13 @@ let lastClipboardHTML = getMostRecent().html;
  * (i.e., different from the last seen HTML), it creates a new `ClipboardContent` object,
  * saves it to persistent history, and sends the new content to the renderer process (if multiple windows exist, it is sent to all of them).
  * 
- * @returns A `NodeJS.Timeout` object representing the polling interval
+ * @returns (A promise of) `NodeJS.Timeout` object representing the polling interval
  */
-export function startBackgroundClipBoardWatcher(): NodeJS.Timeout {
+export async function startBackgroundClipBoardWatcher(): Promise<NodeJS.Timeout> {
+    if (lastClipboardHTML === undefined) {
+        lastClipboardHTML = (await getMostRecent()).html;
+    }
+
     return setInterval(() => {
         const currentHTML = clipboard.readHTML();
         const currentText = clipboard.readText();

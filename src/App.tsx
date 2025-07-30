@@ -12,7 +12,7 @@ export default function App() {
 
     const [inDefault, setInDefault] = useState(true);
 
-    const batchSize = 10;
+    const batchSize = 8;
 
     const pageRef = useRef(page);
     const inDefaultRef = useRef(inDefault);
@@ -80,13 +80,12 @@ export default function App() {
         }, 2000);
     };
 
-    const handleDelete = (index: number) => {
+    const handleDelete = async (index: number) => {
         const deleted = clipboardHistory[index];
         const updated = clipboardHistory.filter((_, i) => i !== index);
         setClipboardHistory(updated);
         window.clipboardAPI.deleteClipboardEntry(deleted.timestamp); 
         setTotalEntries(prev => prev - 1);
-        loadPage(page);
     };
 
     const toggleView = (index: number) => {
@@ -98,12 +97,11 @@ export default function App() {
     };
 
     const handleSearch = async (query: string) => {
-        console.log(query);
         setSearchText(query);
         setInDefault(query.length === 0);
         const total = await window.clipboardAPI.getTotal(query);
         setTotalEntries(total);
-        loadPage(0, query);
+        await loadPage(0, query);
     }
 
     return (
