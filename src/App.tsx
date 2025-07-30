@@ -8,6 +8,7 @@ export default function App() {
     const [page, setPage] = useState(0);
     const [totalEntries, setTotalEntries] = useState(0);
     const [searchText, setSearchText] = useState('');
+    const [showToast, setShowToast] = useState(false);
 
     const [inDefault, setInDefault] = useState(true);
 
@@ -15,6 +16,8 @@ export default function App() {
 
     const pageRef = useRef(page);
     const inDefaultRef = useRef(inDefault);
+    const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
     useEffect(() => {
         pageRef.current = page;
         inDefaultRef.current = inDefault;
@@ -51,10 +54,30 @@ export default function App() {
             setTotalEntries(prev => prev + 1);
             setClipboardHistory(prev => [entry, ...prev].slice(0, batchSize));
         });
+
+        // Cleanup timeout on unmount
+        return () => {
+            if (toastTimeoutRef.current) {
+                clearTimeout(toastTimeoutRef.current);
+            }
+        };
     }, []);
 
     const handleCopy = (text: string) => {
         navigator.clipboard.writeText(text);
+        
+        // Show toast notification
+        setShowToast(true);
+        
+        // Clear any existing timeout
+        if (toastTimeoutRef.current) {
+            clearTimeout(toastTimeoutRef.current);
+        }
+        
+        // Hide toast after 2 seconds
+        toastTimeoutRef.current = setTimeout(() => {
+            setShowToast(false);
+        }, 2000);
     };
 
     const handleDelete = (index: number) => {
@@ -73,7 +96,6 @@ export default function App() {
             )
         );
     };
-
 
     const handleSearch = async (query: string) => {
         console.log(query);
@@ -113,7 +135,11 @@ export default function App() {
                 <span> Page {page + 1} </span>
                 <button disabled={(page + 1) * batchSize >= totalEntries} onClick={() => loadPage(page + 1, searchText)}>Next</button>
             </div>
+
+            {/* Toast Notification */}
+            <div className={`toast ${showToast ? 'toast-show' : ''}`}>
+                ✓ Copied to clipboard!
+            </div>
         </div>
     );
 }
-

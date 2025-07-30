@@ -11,9 +11,21 @@ export type ClipEntry = ClipboardContent & {
 };
 
 function processHighlight(text: string) {
+
+    const languages = [
+       'javascript', 'typescript', 'python', 'java', 'cpp', 'c', 'csharp',
+       'php', 'ruby', 'go', 'swift', 'kotlin', 'scala',
+       'html', 'xml', 'css', 'scss', 'less', 'sass',
+       'json', 'yaml', 'toml', 'ini',
+       'bash', 'shell', 'powershell', 'batch',
+       'dockerfile', 'nginx', 'apache',
+       'r', 'matlab', 'julia',
+       'dart', 'lua', 'perl',
+       'markdown', 'plaintext'
+   ];
     
-    const result = hljs.highlightAuto(text);
-    const isLikelyCode = result.relevance > 10;
+    const result = hljs.highlightAuto(text, languages);
+    const isLikelyCode = result.relevance > 15;
     return {
         highlighted: result.value,
         language: result.language ?? 'plaintext',
@@ -73,7 +85,7 @@ export function ClipCard({
                     <div className="raw-content">
                         {isCode ? (
                             <div className="code-block">
-                                <div className="code-header">
+                                <div className="item-header">
                                     <span className="lang-label">{language}</span>
                                     <button className="copy-btn" onClick={() => handleCopy(entry.text)}>
                                         Copy
@@ -90,20 +102,26 @@ export function ClipCard({
                             </div>
                         ) : (
                             <div className="plain-text">
-                                <div className="plain-header">
+                                <div className="item-header">
+                                    <span className="lang-label">plaintext</span>
                                     <button className="copy-btn" onClick={() => handleCopy(entry.text)}>
                                         Copy
                                     </button>
                                 </div>
                                 <div className="scrollable-content">
-                                    {entry.text}
+                                    <pre>
+                                        <code className="language-plaintext">
+                                            {entry.text}
+                                        </code>
+                                    </pre>
                                 </div>
                             </div>
                         )}
                     </div>
                 ) : (
                     <div className="formatted-content">
-                        <div className="plain-header">
+                        <div className="item-header">
+                            <span className="lang-label">HTML Formatted</span>
                             <button className="copy-btn" onClick={() => handleCopy(entry.text)}>
                                 Copy
                             </button>
