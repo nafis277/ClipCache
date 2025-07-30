@@ -191,3 +191,14 @@
 .delete-btn:hover {
     background-color: darkred;
 }
+
+.search-input {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}

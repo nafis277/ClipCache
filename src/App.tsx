@@ -7,22 +7,28 @@ export default function App() {
     const [clipboardHistory, setClipboardHistory] = useState<ClipEntry[]>([]);
     const [page, setPage] = useState(0);
     const [totalEntries, setTotalEntries] = useState(0);
+    const [searchText, setSearchText] = useState('');
+
+    const [inDefault, setInDefault] = useState(true);
+
     const batchSize = 5;
 
     const pageRef = useRef(page);
+    const inDefaultRef = useRef(inDefault);
     useEffect(() => {
         pageRef.current = page;
-    }, [page]);
+        inDefaultRef.current = inDefault;
+    }, [inDefault, page]);
 
     
-    const loadPage = async (pageIndex: number) => {
+    const loadPage = async (pageIndex: number, searchQuery?: string) => {
         const startIndex = pageIndex * batchSize;
-        const batch = await window.clipboardAPI.getBatch(startIndex, batchSize);
+        const batch = await window.clipboardAPI.getBatch(startIndex, batchSize, searchQuery);
         const converted = batch.map(item => {
             return {
-                ...item, 
-                viewMode: 'raw'
-            };
+                ...item,
+                viewMode: 'raw',
+            } as ClipEntry;
         });
         setClipboardHistory(converted);
         setPage(pageIndex);
@@ -32,11 +38,10 @@ export default function App() {
         (async () => {
             const total = await window.clipboardAPI.getTotal();
             setTotalEntries(total);
-            console.log("GOT TOTAL = ", total);
             loadPage(0);
         })();
         window.clipboardAPI.onClipboardUpdate((newContent: ClipboardContent) => {
-            if (pageRef.current !== 0) {
+            if (pageRef.current !== 0 || !inDefaultRef.current) {
                 return;
             }
             const entry: ClipEntry = {
@@ -69,9 +74,26 @@ export default function App() {
         );
     };
 
+
+    const handleSearch = async (query: string) => {
+        console.log(query);
+        setSearchText(query);
+        setInDefault(query.length === 0);
+        const total = await window.clipboardAPI.getTotal(query);
+        setTotalEntries(total);
+        loadPage(0, query);
+    }
+
     return (
         <div className="app-container">
             <h1 className="app-title">📋 ClipCache</h1>
+            <input
+                type="text"
+                placeholder="Search clipboard content..."
+                value={searchText}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="search-input"
+            />
             {clipboardHistory.length === 0 ? (
                 <p className="no-items">Copy something to get started!</p>
             ) : (
@@ -87,9 +109,9 @@ export default function App() {
                 ))
             )}
             <div className="page-controls">
-                <button disabled={page === 0} onClick={() => loadPage(page - 1)}>Prev</button>
+                <button disabled={page === 0} onClick={() => loadPage(page - 1, searchText)}>Prev</button>
                 <span> Page {page + 1} </span>
-                <button disabled={(page + 1) * batchSize >= totalEntries} onClick={() => loadPage(page + 1)}>Next</button>
+                <button disabled={(page + 1) * batchSize >= totalEntries} onClick={() => loadPage(page + 1, searchText)}>Next</button>
             </div>
         </div>
     );

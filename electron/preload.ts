@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('clipboardAPI', {
         });
     },
 
-    getBatch: (start: number, size: number) => ipcRenderer.invoke('get-batch', start, size),
-    getTotal: () => ipcRenderer.invoke('get-total'),
+    getBatch: (start: number, size: number, searchQuery?: string) => ipcRenderer.invoke('get-batch', start, size, searchQuery),
+    getTotal: (searchQuery?: string) => ipcRenderer.invoke('get-total', searchQuery),
     deleteClipboardEntry: (timestamp: number) => ipcRenderer.invoke('delete-clipboard-entry', timestamp),
 });

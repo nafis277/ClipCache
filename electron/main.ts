@@ -18,18 +18,18 @@ function initateApp() {
         fs.mkdirSync(HISTORY_DIR);
     } 
     console.log(fs.existsSync(HISTORY_DIR));
-    mainWindow = createMainWindow(800, 600);
+    mainWindow = createMainWindow(1000, 800);
     pollInterval = startClipBoardWatcher(mainWindow); 
 }
 
 // Handler for loading a batch of clipboard items
-ipcMain.handle('get-batch', (_e, start, size) => loadClipboardBatch(start, size));
+ipcMain.handle('get-batch', (_e, start: number, size: number, searchQuery?: string) => loadClipboardBatch(start, size, searchQuery));
 
 // Handler for getting the total number of entries stored
-ipcMain.handle('get-total', () => getTotalEntries());
+ipcMain.handle('get-total', (_e, searchQuery?: string) => getTotalEntries(searchQuery));
 
 // Handler for deleting a clipboard item
-ipcMain.handle('delete-clipboard-entry', (_event, timestamp: number) => deleteClipboardEntry(timestamp));
+ipcMain.handle('delete-clipboard-entry', (_e, timestamp: number) => deleteClipboardEntry(timestamp));
 
 app.whenReady().then(() => {
     initateApp();
