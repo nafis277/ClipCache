@@ -57,6 +57,8 @@ export default function App() {
         const updated = clipboardHistory.filter((_, i) => i !== index);
         setClipboardHistory(updated);
         window.clipboardAPI.deleteClipboardEntry(deleted.timestamp); 
+        setTotalEntries(prev => prev - 1);
+        loadPage(page);
     };
 
     const toggleView = (index: number) => {
