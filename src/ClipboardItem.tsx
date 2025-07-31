@@ -16,7 +16,7 @@ function processHighlight(text: string) {
        'javascript', 'typescript', 'python', 'java', 'cpp', 'c', 'csharp',
        'php', 'ruby', 'go', 'swift', 'kotlin', 'scala',
        'html', 'xml', 'css', 'scss', 'less', 'sass',
-       'json', 'yaml', 'toml', 'ini',
+       'json', 'yaml', 'toml', 'ini', 'latex',
        'bash', 'shell', 'powershell', 'batch',
        'dockerfile', 'nginx', 'apache',
        'r', 'matlab', 'julia',
