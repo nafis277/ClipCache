@@ -1,19 +1,6 @@
 import { BrowserWindow, clipboard } from "electron";
 import { saveClipboardContent, getMostRecent } from "./clipboardHistory";
-
-/**
- * Represents a single clipboard entry.
- * 
- * @property text - The plain text content of the clipboard.
- * @property html - The HTML content of the clipboard (if available).
- * @property timestamp - The time at which the content was copied, in milliseconds since epoch.
- */
-export type ClipboardContent = {
-    text: string,
-    html: string,
-    timestamp: number,
-};
-
+import { type ClipboardContent } from "../shared/types";
 // Stores the last seen HTML content to avoid duplicate entries.
 let lastClipboardHTML: string | undefined = undefined; 
 
@@ -40,6 +27,7 @@ export async function startBackgroundClipBoardWatcher(): Promise<NodeJS.Timeout>
                 text: currentText,
                 html: currentHTML,
                 timestamp: Date.now(),
+                tags: [],
             };
             saveClipboardContent(content);
             const allWindows = BrowserWindow.getAllWindows();
@@ -49,7 +37,8 @@ export async function startBackgroundClipBoardWatcher(): Promise<NodeJS.Timeout>
                         win.webContents.send('clipboard-update', {
                             text: currentText,
                             html: currentHTML,
-                            timestamp: Date.now()
+                            timestamp: Date.now(),
+                            tags: [],
                         });
                     } catch {
                         console.log('No valid windows found, copied content saved in background.');

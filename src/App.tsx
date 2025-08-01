@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import 'highlight.js/styles/github.css';
-import { type ClipEntry, type ClipboardContent, ClipCard } from './ClipboardItem';
+import { ClipCard } from './ClipboardItem';
+import { type ClipboardContent, type SearchQuery } from '../shared/types';
 
 export default function App() {
-    const [clipboardHistory, setClipboardHistory] = useState<ClipEntry[]>([]);
+    const [clipboardHistory, setClipboardHistory] = useState<ClipboardContent[]>([]);
     const [page, setPage] = useState(0);
     const [totalEntries, setTotalEntries] = useState(0);
     const [searchText, setSearchText] = useState('');
+    const [selectedTag, setSelectedTag] = useState('');
+    const [availableTags, setAvailableTags] = useState<string[]>([]);
     const [showToast, setShowToast] = useState(false);
-
     const [inDefault, setInDefault] = useState(true);
 
     const batchSize = 8;
@@ -23,17 +25,22 @@ export default function App() {
         inDefaultRef.current = inDefault;
     }, [inDefault, page]);
 
-    
-    const loadPage = async (pageIndex: number, searchQuery?: string) => {
+    // Load available tags
+    const loadAvailableTags = async () => {
+        try {
+            // Assuming you have an API method to get all unique tags
+            const tags = await window.clipboardAPI.getAllTags();
+            console.log("Received: ", tags);
+            setAvailableTags(tags);
+        } catch (error) {
+            console.error('Failed to load tags:', error);
+        }
+    };
+
+    const loadPage = async (pageIndex: number, searchQuery?: SearchQuery) => {
         const startIndex = pageIndex * batchSize;
         const batch = await window.clipboardAPI.getBatch(startIndex, batchSize, searchQuery);
-        const converted = batch.map(item => {
-            return {
-                ...item,
-                viewMode: 'raw',
-            } as ClipEntry;
-        });
-        setClipboardHistory(converted);
+        setClipboardHistory(batch);
         setPage(pageIndex);
     };
 
@@ -41,18 +48,17 @@ export default function App() {
         (async () => {
             const total = await window.clipboardAPI.getTotal();
             setTotalEntries(total);
+            await loadAvailableTags();
             loadPage(0);
         })();
         window.clipboardAPI.onClipboardUpdate((newContent: ClipboardContent) => {
             if (pageRef.current !== 0 || !inDefaultRef.current) {
                 return;
             }
-            const entry: ClipEntry = {
-                ...newContent,
-                viewMode: 'raw',
-            };
             setTotalEntries(prev => prev + 1);
-            setClipboardHistory(prev => [entry, ...prev].slice(0, batchSize));
+            setClipboardHistory(prev => [newContent, ...prev].slice(0, batchSize));
+            // Refresh available tags when new content is added
+            loadAvailableTags();
         });
 
         // Cleanup timeout on unmount
@@ -84,54 +90,140 @@ export default function App() {
         const deleted = clipboardHistory[index];
         const updated = clipboardHistory.filter((_, i) => i !== index);
         setClipboardHistory(updated);
-        window.clipboardAPI.deleteClipboardEntry(deleted.timestamp); 
+        await window.clipboardAPI.deleteClipboardEntry(deleted.timestamp); 
         setTotalEntries(prev => prev - 1);
-    };
-
-    const toggleView = (index: number) => {
-        setClipboardHistory(prev =>
-            prev.map((item, i) =>
-                i === index ? { ...item, viewMode: item.viewMode === 'raw' ? 'formatted' : 'raw' } : item
-            )
-        );
+        await loadAvailableTags();
     };
 
     const handleSearch = async (query: string) => {
         setSearchText(query);
-        setInDefault(query.length === 0);
-        const total = await window.clipboardAPI.getTotal(query);
+        setInDefault(query.length === 0 && selectedTag.length === 0);
+        const searchQuery = {
+            text: query,
+            tag: selectedTag,
+        };
+        const total = await window.clipboardAPI.getTotal(searchQuery);
         setTotalEntries(total);
-        await loadPage(0, query);
+        await loadPage(0, searchQuery);
+    };
+
+    const handleTagFilter = async (tag: string) => {
+        setSelectedTag(tag);
+        setInDefault(searchText.length === 0 && tag.length === 0);
+        const searchQuery = {
+            text: searchText,
+            tag: tag,
+        };
+        const total = await window.clipboardAPI.getTotal(searchQuery);
+        setTotalEntries(total);
+        await loadPage(0, searchQuery);
+    };
+
+    const handleAddTag = async (index: number, tag: string) => {
+        const newHistory = [...clipboardHistory];
+        newHistory[index] = {
+            ...newHistory[index],
+            tags: [...newHistory[index].tags, tag]
+        };
+        setClipboardHistory(newHistory);
+
+        await window.clipboardAPI.addClipboardTag(newHistory[index].timestamp, tag);
+        // Refresh available tags
+        await loadAvailableTags();
+    };
+
+    const handleRemoveTag = async (index: number, tag: string) => {
+        const newTags = clipboardHistory[index].tags.filter(t => t !== tag);
+        const newHistory = [...clipboardHistory];
+        newHistory[index] = {
+            ...newHistory[index],
+            tags: newTags
+        };
+        setClipboardHistory(newHistory);
+        await window.clipboardAPI.removeClipboardTag(newHistory[index].timestamp, tag);
+        // Refresh available tags
+        await loadAvailableTags();
+    };
+
+    const handleNext = () => {
+        const searchQuery = {
+            text: searchText,
+            tag: selectedTag,
+        };
+        loadPage(page + 1, searchQuery);
+    };
+
+    const handlePrev = () => {
+        const searchQuery = {
+            text: searchText,
+            tag: selectedTag,
+        };
+        loadPage(page - 1, searchQuery);
+
     }
+    const clearFilters = async () => {
+        setSearchText('');
+        setSelectedTag('');
+        setInDefault(true);
+        const total = await window.clipboardAPI.getTotal();
+        setTotalEntries(total);
+        await loadPage(0);
+    };
 
     return (
         <div className="app-container">
             <h1 className="app-title">📋 ClipCache</h1>
-            <input
-                type="text"
-                placeholder="Search clipboard content..."
-                value={searchText}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="search-input"
-            />
+            
+            <div className="filter-controls">
+                <input
+                    type="text"
+                    placeholder="Search clipboard content..."
+                    value={searchText}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="search-input"
+                />
+                
+                <div className="tag-filter-container">
+                    <select 
+                        value={selectedTag} 
+                        onChange={(e) => handleTagFilter(e.target.value)}
+                        className="tag-filter-dropdown"
+                    >
+                        <option value="">All Tags</option>
+                        {availableTags.map(tag => (
+                            <option key={tag} value={tag}>{tag}</option>
+                        ))}
+                    </select>
+                </div>
+
+                {(searchText || selectedTag) && (
+                    <button onClick={clearFilters} className="clear-filters-btn">
+                        Clear Filters
+                    </button>
+                )}
+            </div>
+
             {clipboardHistory.length === 0 ? (
-                <p className="no-items">Copy something to get started!</p>
+                <p className="no-items">
+                    {searchText || selectedTag ? 'No items match your filters.' : 'Copy something to get started!'}
+                </p>
             ) : (
                 clipboardHistory.map((entry, idx) => (
                     <ClipCard
                         key={idx}
                         index={idx}
                         entry={entry}
-                        toggleView={toggleView}
                         handleCopy={handleCopy}
                         handleDelete={handleDelete}
+                        handleAddTag={handleAddTag}
+                        handleRemoveTag={handleRemoveTag}
                     />
                 ))
             )}
             <div className="page-controls">
-                <button disabled={page === 0} onClick={() => loadPage(page - 1, searchText)}>Prev</button>
+                <button disabled={page === 0} onClick={handlePrev}>Prev</button>
                 <span> Page {page + 1} </span>
-                <button disabled={(page + 1) * batchSize >= totalEntries} onClick={() => loadPage(page + 1, searchText)}>Next</button>
+                <button disabled={(page + 1) * batchSize >= totalEntries} onClick={handleNext}>Next</button>
             </div>
 
             {/* Toast Notification */}

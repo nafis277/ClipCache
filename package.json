@@ -2,7 +2,7 @@
   "name": "clipcache",
   "private": true,
   "version": "0.0.0",
-  "main": "dist-electron/main.js",
+  "main": "dist-electron/electron/main.js",
   "scripts": {
     "dev": "npm run build:electron && concurrently \"vite\" \"npm run electron:dev\"",
     "electron:dev": "wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .",

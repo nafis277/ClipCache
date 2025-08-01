@@ -1,11 +1,16 @@
 /// <reference types="vite/client" />
+
 declare global {
     interface Window {
         clipboardAPI: {
-            getBatch: (start: number, size: number, searchQuery?: string) => Promise<ClipboardContent[]>;
-            getTotal: (searchQuery?: string) => Promise<number>;
+            getBatch: (start: number, size: number, searchQuery?: SearchQuery) => Promise<ClipboardContent[]>;
+            getTotal: (searchQuery?: SearchQuery) => Promise<number>;
+            addClipboardTag: (timestamp: number, tag: string) => Promise<void>;
+            removeClipboardTag: (timestamp: number, tag: string) => Promise<void>;
+            getAllTags: () => Promise<string[]>;
             onClipboardUpdate: (callback: (text: ClipboardContent) => void) => void;
-            deleteClipboardEntry: (timestamp: number) => void;
+            deleteClipboardEntry: (timestamp: number) => Promise<void>;
+            
         };
     }
 }
