@@ -16,9 +16,10 @@ function processHighlight(text: string) {
     ];
 
     const result = hljs.highlightAuto(text, languages);
+    const isCode = result.relevance > 30;
     return {
         highlighted: result.value,
-        language: result.language ?? 'plaintext'
+        language: (isCode && result.language) ? result.language : 'plaintext'
     };
 }
 
