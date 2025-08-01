@@ -25,10 +25,9 @@ export default function App() {
         inDefaultRef.current = inDefault;
     }, [inDefault, page]);
 
-    // Load available tags
+    // Load available tags from the backend
     const loadAvailableTags = async () => {
         try {
-            // Assuming you have an API method to get all unique tags
             const tags = await window.clipboardAPI.getAllTags();
             console.log("Received: ", tags);
             setAvailableTags(tags);
@@ -37,6 +36,7 @@ export default function App() {
         }
     };
 
+    // Load a specific page of clipboard entries, with optional filtering
     const loadPage = async (pageIndex: number, searchQuery?: SearchQuery) => {
         const startIndex = pageIndex * batchSize;
         const batch = await window.clipboardAPI.getBatch(startIndex, batchSize, searchQuery);
@@ -45,12 +45,14 @@ export default function App() {
     };
 
     useEffect(() => {
+        // Initial setup: load total entries, available tags, and first batch
         (async () => {
             const total = await window.clipboardAPI.getTotal();
             setTotalEntries(total);
             await loadAvailableTags();
             loadPage(0);
         })();
+        // Listen for new clipboard updates and update the UI
         window.clipboardAPI.onClipboardUpdate((newContent: ClipboardContent) => {
             if (pageRef.current !== 0 || !inDefaultRef.current) {
                 return;
@@ -69,6 +71,7 @@ export default function App() {
         };
     }, []);
 
+    // Copy text to clipboard and show toast notification
     const handleCopy = (text: string) => {
         navigator.clipboard.writeText(text);
         
@@ -86,6 +89,7 @@ export default function App() {
         }, 2000);
     };
 
+    // Delete a clipboard entry and update UI and tag list
     const handleDelete = async (index: number) => {
         const deleted = clipboardHistory[index];
         const updated = clipboardHistory.filter((_, i) => i !== index);
@@ -95,6 +99,7 @@ export default function App() {
         await loadAvailableTags();
     };
 
+    // Run search with the current text and selected tag
     const handleSearch = async (query: string) => {
         setSearchText(query);
         setInDefault(query.length === 0 && selectedTag.length === 0);
@@ -107,6 +112,7 @@ export default function App() {
         await loadPage(0, searchQuery);
     };
 
+    // Filter entries based on selected tag
     const handleTagFilter = async (tag: string) => {
         setSelectedTag(tag);
         setInDefault(searchText.length === 0 && tag.length === 0);
@@ -119,6 +125,7 @@ export default function App() {
         await loadPage(0, searchQuery);
     };
 
+    // Add a new tag to a specific clipboard entry
     const handleAddTag = async (index: number, tag: string) => {
         const newHistory = [...clipboardHistory];
         newHistory[index] = {
@@ -132,6 +139,7 @@ export default function App() {
         await loadAvailableTags();
     };
 
+    // Remove a tag from a specific clipboard entry
     const handleRemoveTag = async (index: number, tag: string) => {
         const newTags = clipboardHistory[index].tags.filter(t => t !== tag);
         const newHistory = [...clipboardHistory];
@@ -145,6 +153,7 @@ export default function App() {
         await loadAvailableTags();
     };
 
+    // Go to the next page of entries
     const handleNext = () => {
         const searchQuery = {
             text: searchText,
@@ -153,6 +162,7 @@ export default function App() {
         loadPage(page + 1, searchQuery);
     };
 
+    // Go to the previous page of entries
     const handlePrev = () => {
         const searchQuery = {
             text: searchText,
@@ -161,6 +171,8 @@ export default function App() {
         loadPage(page - 1, searchQuery);
 
     }
+
+    // Clear search and tag filters and reload initial entries
     const clearFilters = async () => {
         setSearchText('');
         setSelectedTag('');

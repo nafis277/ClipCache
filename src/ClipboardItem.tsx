@@ -2,6 +2,13 @@ import type { JSX } from "react";
 import hljs from 'highlight.js';
 import { useState } from "react";
 import { type ClipboardContent } from "../shared/types";
+
+/**
+ * Processes and highlights code-like clipboard text using highlight.js.
+ *
+ * @param text The clipboard text to be analyzed and highlighted.
+ * @returns An object with `highlighted` HTML and the detected `language`.
+ */
 function processHighlight(text: string) {
     const languages = [
        'javascript', 'typescript', 'python', 'java', 'cpp', 'c', 'csharp',
@@ -23,6 +30,12 @@ function processHighlight(text: string) {
     };
 }
 
+/**
+ * Formats a Unix timestamp into a human-readable string.
+ *
+ * @param timestamp The timestamp in milliseconds.
+ * @returns A localized date string, e.g., "Aug 1, 11:30 PM".
+ */
 function formatTime(timestamp: number): string {
     const date = new Date(timestamp);
     return date.toLocaleString(undefined, {
@@ -32,7 +45,18 @@ function formatTime(timestamp: number): string {
         minute: '2-digit',
     });
 }
-
+/**
+ * A single clipboard item rendered as a card, with copy/delete buttons,
+ * code highlighting, tag controls, and timestamp.
+ *
+ * @param props.entry The clipboard content item.
+ * @param props.index The index of the item in the history array.
+ * @param props.handleCopy Callback when the user clicks the Copy button.
+ * @param props.handleDelete Callback when the user clicks Delete.
+ * @param props.handleAddTag Callback when user adds a new tag to the item.
+ * @param props.handleRemoveTag Callback when user removes a tag from the item.
+ * @returns A JSX element representing the clipboard item.
+ */
 export function ClipCard({
     entry,
     index,
