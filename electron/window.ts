@@ -28,9 +28,8 @@ export function createMainWindow(width: number, height: number): BrowserWindow {
 
     if (IS_DEV) {
         mainWindow.loadURL('http://localhost:5173'); 
-        mainWindow.webContents.openDevTools();       // Open DevTools for debugging
     } else {
-        mainWindow.loadFile(join(__dirname, '../dist/index.html')); 
+        mainWindow.loadFile(join(__dirname, '../../dist/index.html')); 
     }
 
     return mainWindow;
