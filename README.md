@@ -5,15 +5,17 @@
 
 ## Features
 
-- Tracks clipboard history in the background
-- Persists clipboard entries across app restarts (each stored in a separate file)
-- Toggle between raw text and rendered HTML
-- Syntax highlighting for code snippets
-- Copy buttons and timestamps for all entries
-- System tray integration with quick access menu
-- Efficient lazy loading of clipboard history in batches to reduce memory usage and improve performance
-- Search across entire saved clipboard history
-- Cross-platform desktop support
+- Tracks clipboard history in the background  
+- Persists clipboard entries across app restarts (each stored in a separate file)  
+- Syntax highlighting for code snippets  
+- Copy buttons and timestamps for all entries  
+- Add, view, and remove tags for any clipboard entry  
+- Filter clipboard history by tags or search query  
+- System tray integration with quick access menu  
+- Efficient lazy loading of clipboard history in batches to reduce memory usage and improve performance  
+- Search across entire saved clipboard history (text + tags)  
+- Cross-platform desktop support (Windows, macOS, Linux)
+
 
 ## Development Setup
 
