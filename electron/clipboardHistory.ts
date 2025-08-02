@@ -174,14 +174,16 @@ export async function getTotalEntries(searchQuery?: SearchQuery): Promise<number
 }
 
 /**
- * Deletes a specific clipboard entry file, and removes it from the cache.
+ * Deletes a specific clipboard entry file
  *
- * @param timestamp The timestamp of the clipboard entry (used as filename).
+ * @param identifier The identifier of the clipboard entry, which is either the timestamp(as a number) or the filename (as a string):
+ *                  - if the timestamp is provided as a number, the deleted file is named `timestamp`.json
+ *                  - if identifier is a string, then the deleted file is named as the identifier itself
  * @returns A promise that resolves when deletion completes (or is skipped if not found).
  */
-export async function deleteClipboardEntry(timestamp: number): Promise<void> {
+export async function deleteClipboardEntry(identifier : number | string): Promise<void> {
     await initializeCache();
-    const fname = `${timestamp}.json`;
+    const fname = (typeof identifier === 'number') ? `${identifier}.json`: identifier;
     const filePath = path.join(HISTORY_DIR, fname);
 
     try {
@@ -201,6 +203,19 @@ export async function deleteClipboardEntry(timestamp: number): Promise<void> {
     }
 }
 
+/**
+ * Deletes all clipboard entry file matching the search query
+ *
+ * @param searchQuery The filter to match the clipboard entries with
+ * @returns A promise that resolves when deletion completes.
+ */
+export async function deleteAllEntries(searchQuery ?: SearchQuery): Promise<void> {
+    await initializeCache();
+    const entries = await listHistoryFilenames(searchQuery);
+    entries.forEach(async (entry) => {
+        await deleteClipboardEntry(entry);
+    }); 
+}
 /**
  * Adds a new tag to a specific clipboard entry file 
  * @param timestamp The timestamp of the clipboard entry (used as filename)

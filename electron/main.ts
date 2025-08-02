@@ -2,7 +2,8 @@ import { app, BrowserWindow, ipcMain, Tray, Menu, dialog } from 'electron';
 import { startBackgroundClipBoardWatcher } from './clipboardManager';
 import { createMainWindow } from './window';
 import { HISTORY_DIR, getTotalEntries, loadClipboardBatch, deleteClipboardEntry,
-         addClipboardTag, removeClipboardTag, getAllTags } from './clipboardHistory';
+         addClipboardTag, removeClipboardTag, getAllTags, 
+         deleteAllEntries} from './clipboardHistory';
 import fs from 'fs';
 import path from 'path';
 import { SearchQuery } from '../shared/types';
@@ -132,7 +133,9 @@ ipcMain.handle('all-tags', async () =>
     getAllTags()
 );
 
-
+ipcMain.handle('delete-all-entry', async (_e, searchQuery?: SearchQuery) =>
+    deleteAllEntries(searchQuery)
+);
 
 // Handles initial operations when the app is ready
 app.whenReady().then(() => {

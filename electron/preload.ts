@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('clipboardAPI', {
     getBatch: (start: number, size: number, searchQuery?: SearchQuery) => ipcRenderer.invoke('get-batch', start, size, searchQuery),
     getTotal: (searchQuery?: SearchQuery) => ipcRenderer.invoke('get-total', searchQuery),
     deleteClipboardEntry: (timestamp: number) => ipcRenderer.invoke('delete-clipboard-entry', timestamp),
+    deleteAllEntries: (searchQuery?: SearchQuery) => ipcRenderer.invoke('delete-all-entry', searchQuery),
     addClipboardTag: (timestamp: number, tag: string) => ipcRenderer.invoke('add-tag', timestamp, tag), 
     removeClipboardTag: (timestamp: number, tag: string) => ipcRenderer.invoke('remove-tag', timestamp, tag),
     getAllTags: () => ipcRenderer.invoke('all-tags'),

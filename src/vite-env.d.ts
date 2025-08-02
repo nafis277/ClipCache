@@ -10,7 +10,7 @@ declare global {
             getAllTags: () => Promise<string[]>;
             onClipboardUpdate: (callback: (text: ClipboardContent) => void) => void;
             deleteClipboardEntry: (timestamp: number) => Promise<void>;
-            
+            deleteAllEntries: (searchQuery?: SearchQuery) => Promise<void>;
         };
     }
 }

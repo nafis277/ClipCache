@@ -408,3 +408,119 @@
     border-color: #60a5fa;
     box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.4);
 }
+
+/* Delete All Button Container */
+.delete-all-container {
+    display: flex;
+    justify-content: flex-end;
+    margin: 10px 0;
+}
+
+.delete-all-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.delete-all-btn:hover:not(:disabled) {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.delete-all-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Dialog Overlay */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+/* Dialog Box */
+.dialog-box {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: dialogFadeIn 0.2s ease-out;
+}
+
+@keyframes dialogFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.dialog-box h3 {
+    margin: 0 0 12px 0;
+    color: #dc3545;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.dialog-box p {
+    margin: 0 0 20px 0;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Dialog Buttons */
+.dialog-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.dialog-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.dialog-cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+.dialog-cancel:hover {
+    background-color: #5a6268;
+}
+
+.dialog-confirm {
+    background-color: #dc3545;
+    color: white;
+}
+
+.dialog-confirm:hover {
+    background-color: #c82333;
+}

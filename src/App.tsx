@@ -12,7 +12,10 @@ export default function App() {
     const [selectedTag, setSelectedTag] = useState('');
     const [availableTags, setAvailableTags] = useState<string[]>([]);
     const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('✓ Copied to clipboard!');
+
     const [inDefault, setInDefault] = useState(true);
+    const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
 
     const batchSize = 8;
 
@@ -71,11 +74,12 @@ export default function App() {
         };
     }, []);
 
-    // Copy text to clipboard and show toast notification
-    const handleCopy = (text: string) => {
-        navigator.clipboard.writeText(text);
-        
-        // Show toast notification
+
+    // Show the toast with given message
+    const handleShowToast = (message: string) => {
+
+        // set toast message and show it
+        setToastMessage(message);
         setShowToast(true);
         
         // Clear any existing timeout
@@ -89,6 +93,12 @@ export default function App() {
         }, 2000);
     };
 
+    // Copy text to clipboard and show toast notification
+    const handleCopy = (text: string) => {
+        navigator.clipboard.writeText(text);
+        handleShowToast('✓ Copied to clipboard!');
+    };
+
     // Delete a clipboard entry and update UI and tag list
     const handleDelete = async (index: number) => {
         const deleted = clipboardHistory[index];
@@ -97,6 +107,8 @@ export default function App() {
         await window.clipboardAPI.deleteClipboardEntry(deleted.timestamp); 
         setTotalEntries(prev => prev - 1);
         await loadAvailableTags();
+        await loadPage(page);
+        handleShowToast('🗑️ Deleted successfully!')
     };
 
     // Run search with the current text and selected tag
@@ -179,8 +191,24 @@ export default function App() {
         setInDefault(true);
         const total = await window.clipboardAPI.getTotal();
         setTotalEntries(total);
+        await loadAvailableTags();
         await loadPage(0);
     };
+
+    // Delete all clipboard entries currently filtered by search and tag
+    const handleDeleteAll = async () => {
+    
+        setShowDeleteAllDialog(false);
+        const searchQuery = {
+            text: searchText,
+            tag: selectedTag,
+        };
+        await window.clipboardAPI.deleteAllEntries(searchQuery);
+        await clearFilters();
+        
+        handleShowToast('🗑️ All entries deleted!');
+       
+    }
 
     return (
         <div className="app-container">
@@ -213,8 +241,14 @@ export default function App() {
                         Clear Filters
                     </button>
                 )}
+                <button 
+                    onClick={() => setShowDeleteAllDialog(true)} 
+                    className="delete-all-btn"
+                    disabled={totalEntries === 0}
+                >
+                    🗑️ Delete All
+                </button>
             </div>
-
             {clipboardHistory.length === 0 ? (
                 <p className="no-items">
                     {searchText || selectedTag ? 'No items match your filters.' : 'Copy something to get started!'}
@@ -240,8 +274,32 @@ export default function App() {
 
             {/* Toast Notification */}
             <div className={`toast ${showToast ? 'toast-show' : ''}`}>
-                ✓ Copied to clipboard!
+                {toastMessage}
             </div>
+            {showDeleteAllDialog && (
+                <div className="dialog-overlay">
+                    <div className="dialog-box">
+                        <h3>Delete All Clipboard History?</h3>
+                        <p>This action cannot be undone.
+                        All clipboard entries <b> matching your search text and chosen tag</b> will be permanently deleted.</p>
+                        <p> If no search/tag filter is chosen, entire clipboard history will be parmanently deleted.</p>
+                        <div className="dialog-buttons">
+                            <button 
+                                onClick={() => setShowDeleteAllDialog(false)} 
+                                className="dialog-btn dialog-cancel"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleDeleteAll} 
+                                className="dialog-btn dialog-confirm"
+                            >
+                                Yes, Delete All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
