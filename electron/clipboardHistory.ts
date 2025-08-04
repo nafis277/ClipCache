@@ -154,7 +154,11 @@ export async function loadClipboardBatch(
         filenames.map(async (fname) => {
             try {
                 const raw = await fs.readFile(path.join(HISTORY_DIR, fname), 'utf-8');
-                return JSON.parse(raw) as ClipboardContent;
+                const parsed = JSON.parse(raw) as ClipboardContent;
+                if (!parsed.tags) {
+                    parsed.tags = [];
+                }
+                return parsed;
             } catch {
                 return undefined;
             }
@@ -189,6 +193,11 @@ export async function deleteClipboardEntry(identifier : number | string): Promis
     try {
         const raw = await fs.readFile(filePath, 'utf-8');
         const content = JSON.parse(raw) as ClipboardContent; 
+        
+        if (!content.tags) {
+            content.tags = [];
+        }
+        
         content.tags.forEach(tag => {
             const index = cachedTags.indexOf(tag);
             if (index !== -1) {
@@ -254,6 +263,9 @@ export async function removeClipboardTag(timestamp: number, tag: string): Promis
     try {
         const raw = await fs.readFile(filePath, 'utf-8');
         const content = JSON.parse(raw) as ClipboardContent;
+        if (!content.tags) {
+            content.tags = [];
+        }
         content.tags = content.tags.filter(t => t !== tag);
         const cachedIndex = cachedTags.indexOf(tag);
         if (cachedIndex !== -1) {
